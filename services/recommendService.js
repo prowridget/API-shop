@@ -1,54 +1,48 @@
 const Recommend = require('../models/recommendModel');
-const seedData = require('../models/recommendModel');
 
-const getRecommendedProducts = async () => {
+// Dịch vụ xử lý gợi ý
+class RecommendService {
+  // Tạo một gợi ý mới
+  async createRecommend(data) {
+    const recommend = new Recommend(data);
+    return await recommend.save();
+  }
+
+  // Lấy danh sách tất cả gợi ý
+  async getAllRecommends() {
+    return await Recommend.find();
+  }
+
+  // Lấy thông tin gợi ý theo ID
+  async getRecommendById(id) {
+    return await Recommend.findById(id);
+  }
+
+  // Cập nhật gợi ý theo ID
+  async updateRecommend(id, data) {
     try {
-        
-        const data = await Recommend.find({});
-        return data;
+      const result = await Recommend.findByIdAndUpdate(id, data, { new: true });
+      if (!result) {
+        throw new Error("Recommendation not found");
+      }
+      return result;
     } catch (error) {
-        throw new Error('Error fetching recommendations: ' + error.message);
+      throw new Error(error.message || "Error updating recommendation");
     }
-};
+  }
 
+  // Xóa gợi ý theo ID
+  async deleteRecommend(id) {
+    try {
+      const result = await Recommend.findByIdAndDelete(id);
+      if (!result) {
+        throw new Error("Recommendation not found");
+      }
+      return { message: "Recommendation deleted successfully!" };
+    } catch (error) {
+      throw new Error(error.message || "Error deleting recommendation");
+    }
+  }
+}
 
-const getTestRecommendProducts = () => {
-    return seedData;
-};
-
-
-module.exports = {
-    getRecommendedProducts,
-    getTestRecommendProducts
-};
-
-// //api
-// class RecommendService {
-//     // Tạo một Recommend mới
-//     async createRecommend(data) {
-//       const recommend = new Recommend(data);
-//       return await recommend.save();
-//     }
-  
-//     // Lấy danh sách tất cả Recommend
-//     async getAllRecommends() {
-//       return await Recommend.find();
-//     }
-  
-//     // Lấy thông tin Recommend theo ID
-//     async getRecommendById(id) {
-//       return await Recommend.findById(id);
-//     }
-  
-//     // Cập nhật Recommend
-//     async updateRecommend(id, data) {
-//       return await Recommend.findByIdAndUpdate(id, data, { new: true });
-//     }
-  
-//     // Xóa Recommend theo ID
-//     async deleteRecommend(id) {
-//       return await Recommend.findByIdAndDelete(id);
-//     }
-//   }
-  
-//   module.exports = new RecommendService();
+module.exports = new RecommendService();
